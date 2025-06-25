@@ -1,0 +1,87 @@
+-- Create database "Sales"
+create database Sales;
+use Sales; 
+
+-- Create table Sales_data;
+CREATE TABLE sales_data (
+    Product_ID INT,
+    Sale_Date DATE,
+    Sales_Rep VARCHAR(50),
+    Region VARCHAR(50),
+    Sales_Amount DECIMAL(10,2),
+    Quantity_Sold INT,
+    Product_Category VARCHAR(50),
+    Unit_Cost DECIMAL(10,2),
+    Unit_Price DECIMAL(10,2),
+    Customer_Type VARCHAR(50),
+    Discount DECIMAL(5,2),
+    Payment_Method VARCHAR(50),
+    Sales_Channel VARCHAR(50),
+    Region_and_Sales_Rep VARCHAR(100)
+);
+-- describe the columns
+describe Sales_data;
+select database();
+
+-- Retrieve all records from the sales data
+select * from Sales_data;
+
+-- Show all distinct Product_Category
+select distinct Product_category from Sales_data;
+
+-- Display sales made by Sales_Rep = 'Bob'
+select * from Sales_data where Sales_Rep = 'Bob';
+
+-- Get top 5 highest Sales_Amount values. 
+select * from Sales_data order by Sales_Amount limit 5;
+
+-- Find all records where the Discount is more than 0.10.
+select * from Sales_data where Discount > 0.10;
+
+-- Get sales from the South region 
+select * from Sales_data where Region='South';
+
+-- List all Sales_Rep who handled Electronics category 
+select distinct Sales_Rep from Sales_data where Product_category='Electronics';
+
+ -- Get all records with Customer_Type = 'New' and Discount < 0.05
+ select * from Sales_data where Customer_Type ='New' and Discount <0.5;
+ 
+ 
+ --  Total Sales_Amount by region.
+ select Region, Sum(Sales_Amount) as Total_sales 
+ from Sales_data group by Region;
+ 
+ -- Total sales and average discount for each Payment_Method
+ select Payment_Method, sum(Sales_Amount) as Total_sales , avg(Discount) as Avg_dicount 
+ from Sales_data group by Payment_Method;
+ 
+-- Find the month with the highest total Sales_Amount.
+ SELECT MONTH(Sale_Date) AS Sale_Month, SUM(Sales_Amount) AS Monthly_Sales
+FROM sales_data
+GROUP BY MONTH(Sale_Date)
+ORDER BY Monthly_Sales DESC
+LIMIT 5;
+
+-- Show product-wise average unit cost and average unit price.
+SELECT Product_ID, AVG(Unit_Cost) AS Avg_Cost, AVG(Unit_Price) AS Avg_Price
+FROM sales_data GROUP BY Product_ID;
+
+--  Find Sales with Above-Average Discount.
+SELECT *
+FROM sales_data
+WHERE Discount > (
+    SELECT AVG(Discount) FROM sales_data
+);
+
+-- List Regions with Sales Above Overall Average
+SELECT DISTINCT Region
+FROM sales_data
+WHERE Region IN (
+    SELECT Region
+    FROM sales_data
+    GROUP BY Region
+    HAVING AVG(Sales_Amount) > (
+        SELECT AVG(Sales_Amount) FROM sales_data
+    )
+);
